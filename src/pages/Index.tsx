@@ -347,8 +347,8 @@ const Index = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Custom CSS for animations */}
-      <style jsx>{`
+      <style>
+        {`
         @keyframes moveUp {
           0% {
             opacity: 1;
@@ -363,7 +363,8 @@ const Index = () => {
         .animate-fade-up {
           animation: moveUp 1s forwards;
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 };
