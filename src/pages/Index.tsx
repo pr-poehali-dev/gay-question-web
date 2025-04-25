@@ -16,6 +16,86 @@ interface Boost {
   icon: React.ReactNode;
 }
 
+// Функция для сохранения бустов без циклических ссылок
+const serializeBoosts = (boosts: Boost[]) => {
+  return boosts.map(boost => ({
+    id: boost.id,
+    name: boost.name,
+    description: boost.description,
+    cost: boost.cost,
+    power: boost.power,
+    purchased: boost.purchased,
+    // Иконки будут пересозданы при загрузке
+  }));
+};
+
+// Инициализация бустов с иконками
+const createInitialBoosts = (savedBoosts?: any[]) => {
+  const defaultBoosts = [
+    {
+      id: 1,
+      name: "Двойная сила",
+      description: "Увеличивает мощность клика до 5 очков",
+      cost: 100,
+      power: 5,
+      purchased: false,
+      icon: <Zap className="h-5 w-5 text-yellow-400" />
+    },
+    {
+      id: 2,
+      name: "Турбо Энергия",
+      description: "Увеличивает мощность клика до 15 очков",
+      cost: 500,
+      power: 15,
+      purchased: false,
+      icon: <Battery className="h-5 w-5 text-blue-400" />
+    },
+    {
+      id: 3,
+      name: "Космический заряд",
+      description: "Увеличивает мощность клика до 50 очков",
+      cost: 2000,
+      power: 50,
+      purchased: false,
+      icon: <Rocket className="h-5 w-5 text-purple-400" />
+    },
+    {
+      id: 4,
+      name: "Суперспособность",
+      description: "Увеличивает мощность клика до 150 очков",
+      cost: 8000,
+      power: 150,
+      purchased: false,
+      icon: <Star className="h-5 w-5 text-amber-400" />
+    },
+    {
+      id: 5,
+      name: "Ультра Драйв",
+      description: "Увеличивает мощность клика до 500 очков",
+      cost: 25000,
+      power: 500,
+      purchased: false,
+      icon: <Coffee className="h-5 w-5 text-red-400" />
+    },
+  ];
+
+  // Если есть сохраненные бусты, используем их свойства, но добавляем иконки
+  if (savedBoosts) {
+    return defaultBoosts.map((defaultBoost, index) => {
+      if (index < savedBoosts.length) {
+        const savedBoost = savedBoosts[index];
+        return {
+          ...defaultBoost,
+          purchased: savedBoost.purchased || false,
+        };
+      }
+      return defaultBoost;
+    });
+  }
+
+  return defaultBoosts;
+};
+
 const Index = () => {
   const [count, setCount] = useState(() => {
     const saved = localStorage.getItem("redbull-count");
@@ -34,53 +114,7 @@ const Index = () => {
   
   const [boosts, setBoosts] = useState<Boost[]>(() => {
     const saved = localStorage.getItem("redbull-boosts");
-    return saved ? JSON.parse(saved) : [
-      {
-        id: 1,
-        name: "Двойная сила",
-        description: "Увеличивает мощность клика до 5 очков",
-        cost: 100,
-        power: 5,
-        purchased: false,
-        icon: <Zap className="h-5 w-5 text-yellow-400" />
-      },
-      {
-        id: 2,
-        name: "Турбо Энергия",
-        description: "Увеличивает мощность клика до 15 очков",
-        cost: 500,
-        power: 15,
-        purchased: false,
-        icon: <Battery className="h-5 w-5 text-blue-400" />
-      },
-      {
-        id: 3,
-        name: "Космический заряд",
-        description: "Увеличивает мощность клика до 50 очков",
-        cost: 2000,
-        power: 50,
-        purchased: false,
-        icon: <Rocket className="h-5 w-5 text-purple-400" />
-      },
-      {
-        id: 4,
-        name: "Суперспособность",
-        description: "Увеличивает мощность клика до 150 очков",
-        cost: 8000,
-        power: 150,
-        purchased: false,
-        icon: <Star className="h-5 w-5 text-amber-400" />
-      },
-      {
-        id: 5,
-        name: "Ультра Драйв",
-        description: "Увеличивает мощность клика до 500 очков",
-        cost: 25000,
-        power: 500,
-        purchased: false,
-        icon: <Coffee className="h-5 w-5 text-red-400" />
-      },
-    ];
+    return createInitialBoosts(saved ? JSON.parse(saved) : null);
   });
 
   const [selectedBoost, setSelectedBoost] = useState<Boost | null>(null);
@@ -91,7 +125,8 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem("redbull-count", count.toString());
     localStorage.setItem("redbull-power", clickPower.toString());
-    localStorage.setItem("redbull-boosts", JSON.stringify(boosts));
+    // Сохраняем только необходимые свойства бустов без React элементов
+    localStorage.setItem("redbull-boosts", JSON.stringify(serializeBoosts(boosts)));
   }, [count, clickPower, boosts]);
 
   // Создание случайных декоративных частиц
@@ -131,7 +166,7 @@ const Index = () => {
   const handleSaveGame = () => {
     localStorage.setItem("redbull-count", count.toString());
     localStorage.setItem("redbull-power", clickPower.toString());
-    localStorage.setItem("redbull-boosts", JSON.stringify(boosts));
+    localStorage.setItem("redbull-boosts", JSON.stringify(serializeBoosts(boosts)));
     
     // Показать уведомление о сохранении
     setErrorMessage("Игра сохранена!");
