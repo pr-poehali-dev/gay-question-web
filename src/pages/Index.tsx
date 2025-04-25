@@ -333,7 +333,7 @@ const Index = () => {
                   ? "bg-gray-700 text-gray-400 border-gray-600 cursor-not-allowed" 
                   : "bg-gray-800 hover:bg-gray-700 text-white border-blue-600 hover:border-blue-500"
               )}
-              disabled={selectedBoost?.purchased}
+              disabled={selectedBoost?.purchased || false}
             >
               Купить
             </Button>
@@ -348,7 +348,7 @@ const Index = () => {
       </Dialog>
       
       {/* Custom CSS for animations */}
-      <style jsx global>{`
+      <style jsx>{`
         @keyframes moveUp {
           0% {
             opacity: 1;
